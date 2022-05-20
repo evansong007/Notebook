@@ -32,3 +32,27 @@
       - `p` (hostPort)3000:(containerPort)3000 - map port 3000 of the host to port 3000 in the container
 
 
+#### Remove a container using the CLI
+1. Get the ID of the container by using the docker ps command.
+`docker ps`
+2. Use the docker stop command to stop the container.
+`docker stop <the-container-id>`
+3. Once the container has stopped, you can remove it by using the docker rm command.
+`docker rm <the-container-id>`
+
+#### Share the application
+![share](create.png)
+
+#### Push the image
+1. `docker image ls` : list the image on your computer
+   
+      ![ls image](lsimage.png)
+2. `docker login -u YOUR-USER-NAME` : Login to the Docker Hub using the command
+
+      ![login](login.png)
+3. Use the `docker tag` command to give the getting-started image a new name. Be sure to swap out YOUR-USER-NAME with your Docker ID
+   `docker tag getting-started YOUR-USER-NAME/getting-started`
+   ![tag](tag.png)
+4. `docker push YOUR-USER-NAME/getting-started` : push image to Docker Hub
+   ![push](push.png)
+   ![push2](push2.png)
