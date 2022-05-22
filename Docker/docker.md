@@ -48,11 +48,58 @@
    
       ![ls image](lsimage.png)
 2. `docker login -u YOUR-USER-NAME` : Login to the Docker Hub using the command
-
-      ![login](login.png)
+   ![login](login.png)
 3. Use the `docker tag` command to give the getting-started image a new name. Be sure to swap out YOUR-USER-NAME with your Docker ID
    `docker tag getting-started YOUR-USER-NAME/getting-started`
    ![tag](tag.png)
 4. `docker push YOUR-USER-NAME/getting-started` : push image to Docker Hub
    ![push](push.png)
    ![push2](push2.png)
+
+### Persist the DB    Volumes
+ Each container starts from the image definition each time it starts.
+ All changes are **lost** when the container is removed
+ **Volumes** provide the ability to connect specific filesystem paths of the container back to the host machine.
+
+![Volume](Volume.png)
+
+#### Named Volume
+1. Create a volume by using the `docker volume create` command.
+   `docker volume create todo-db`
+2. Start the todo app container, but add the **-v** flag to specify a volume mount. We will use the named volume and mount it to /etc/todos, which will capture all files created at the path.
+   `docker run -dp 3000:3000 -v todo-db:/etc/todos getting-started`
+3. check where is docker storing data of named volume
+   `docker volume inspect todo-db`
+
+#### Bind Mounts
+Start a dev-mode container
+To run our container to support a development workflow, we will do the following:
+- Mount our source code into the container
+- Install all dependencies, including the “dev” dependencies
+- Start nodemon to watch for filesystem changes
+`docker run -dp 3000:3000 `
+     `-w /app -v "$(pwd):/app" `
+     `node:12-alpine `
+     `sh -c "yarn install && yarn run dev"`
+- -dp 3000:3000 - same as before. Run in detached (background) mode and create a port mapping
+- -w /app - sets the “working directory” or the current directory that the command will run from
+- -v "$(pwd):/app" - bind mount the current directory from the host in the container into the /app directory
+node:12-alpine - the image to use. Note that this is the base image for our app from the Dockerfile
+- sh -c "yarn install && yarn run dev" - the command. We’re starting a shell using sh (alpine doesn’t have bash) and running yarn install to install all dependencies and then running yarn run dev. If we look in the package.json, we’ll see that the dev script is starting nodemon.
+
+### Multi container apps
+#### Start MySQL
+There are two ways to put a container on a network: 
+  1) Assign it at start or 
+  2) connect an existing container.
+
+- Create the network.
+  `docker network create todo-app`
+- Start a MySQL container and attach it to the network.
+  `docker run -d \`
+     `--network todo-app --network-alias mysql \`
+     `-v todo-mysql-data:/var/lib/mysql \`
+     `-e MYSQL_ROOT_PASSWORD=secret \`
+     `-e MYSQL_DATABASE=todos \`
+     `mysql:5.7`
+
