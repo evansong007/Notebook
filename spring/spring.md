@@ -6,3 +6,4 @@
 - `@RequestParam` : binds the value of the query string parameter 
 
 ![annotation](rest.png)
+---
